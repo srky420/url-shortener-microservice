@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>URL Shortener Microservice</title>
+</head>
+<body>
+    <h1>URL Shortener Microservice</h1>
+    <hr>
+    <main>
+        <p>Example: POST [project_url]/api/shorturl - https://www.google.com</p>
+        <form action="/api/shorturl" method="post">
+            <fieldset>
+                <legend>URL Shortener</legend>
+                <label for="url">URL: </label>
+                <input type="text" name="url" id="url" placeholder="Enter URL..." required>
+                <input type="submit" value="Shorten">
+            </fieldset>
+        </form>
+        <h2>Example Usage:</h2>
+        <p></p>
+    </main>
+</body>
+</html>
