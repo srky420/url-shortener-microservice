@@ -7,7 +7,6 @@ let urlSchema = new mongoose.Schema({
     originalUrl: {
         type: String,
         required: true,
-        unique: true,
         validate: (val) => {
             try {
                 const url = new URL(val);
@@ -20,9 +19,8 @@ let urlSchema = new mongoose.Schema({
     },
     shortUrl: {
         type: Number,
-        default: 1,
+        default: 0,
         required: true,
-        unique: true
     }
 });
 

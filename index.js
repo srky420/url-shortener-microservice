@@ -27,6 +27,7 @@ function validateUrl(req, res, next) {
         // Validate URL
         DNS.lookup(url.hostname, { all: true }, (err, adresses) => {
             if (err) {
+                console.error(err)
                 res.json({ error: 'Invalid URL' })
             }
             else {
@@ -51,21 +52,43 @@ app.post('/api/shorturl', validateUrl, function (req, res) {
     // Get url from body
     const url = req.body.url;
 
-    // Create
-
-    res.json({
-        originalUrl: url,
-        shortUrl: ''
-    })
+    // Create short URL
+    createNewUrl(url, (err, doc) => {
+        if (err) {
+            res.json({ error: 'Unexpected error' });
+        }
+        else {
+            res.json({
+                original_url: doc.originalUrl,
+                short_url: doc.shortUrl
+            });
+        }
+    });
 });
 
 
 // Queries
-const createNewURL = (url, done) => {
-    const newUrl = new URLModel({
+const createNewUrl = async (url, done) => {
+
+    // Check if already exists
+    const existingUrl = await URLModel.findOne({ originalUrl: url });
+    if (existingUrl) {
+        return done(null, existingUrl);
+    }
+
+    // Get number of docs
+    const count = await URLModel.countDocuments();
+
+    // Create new doc and set short url to count + 1
+    const doc = new URLModel({
         originalUrl: url,
-        shortUrl: ''
-    })
+        shortUrl: count + 1
+    });
+
+    // Save the doc
+    doc.save()
+        .then(doc => done(null, doc))
+        .catch(err => done(err))
 }
 
 // Start server
