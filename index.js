@@ -4,7 +4,7 @@ let app = express();
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
 let DNS = require('dns');
-let { URL, parse } = require('url');
+let { URL } = require('url');
 let URLModel = require('./models/urlModel');
 
 
@@ -28,7 +28,7 @@ function validateUrl(req, res, next) {
         DNS.lookup(url.hostname, { all: true }, (err, adresses) => {
             if (err) {
                 console.error(err)
-                res.json({ error: 'Invalid URL' })
+                res.status(400).json({ error: 'Invalid URL' })
             }
             else {
                 console.log(adresses);
@@ -38,7 +38,7 @@ function validateUrl(req, res, next) {
     }
     catch (e) {
         console.error(e);
-        res.json({ error: 'Invalid URL' })
+        res.status(400).json({ error: 'Invalid URL' })
     }
 }
 
@@ -52,13 +52,13 @@ app.post('/api/shorturl', validateUrl, function (req, res) {
     // Get url from body
     const url = req.body.url;
 
-    // Create short URL
+    // Create short URL (Pass the url and done function)
     createNewUrl(url, (err, doc) => {
         if (err) {
-            res.json({ error: 'Unexpected error' });
+            res.status(400).json({ error: 'Unexpected error' });
         }
         else {
-            res.json({
+            res.status(201).json({
                 original_url: doc.originalUrl,
                 short_url: doc.shortUrl
             });
@@ -66,8 +66,35 @@ app.post('/api/shorturl', validateUrl, function (req, res) {
     });
 });
 
+// GET Shorturl route
+app.get('/api/shorturl/:shortUrl', function (req, res, next) {
+    // Get URL param
+    const shortUrl = req.params.shortUrl;
 
-// Queries
+    // Validate URL param
+    if (/^\d+$/.test(shortUrl)) {
+        next();
+    }
+    else {
+        res.status(400).json({ error: 'Wrong format' });
+    }
+
+}, async function (req, res) {
+
+    // Query DB
+    const url = await URLModel.findOne({ shortUrl: parseInt(req.params.shortUrl) });
+
+    // If exists, redirect to originalUrl
+    if (url) {
+        originalUrl = new URL(url.originalUrl);
+        res.status(302).redirect(originalUrl);
+    }
+    else {
+        res.status(400).json({ error: 'No short url found' })
+    }
+});
+
+// Create new url in DB
 const createNewUrl = async (url, done) => {
 
     // Check if already exists
