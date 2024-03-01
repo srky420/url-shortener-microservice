@@ -49,8 +49,8 @@ app.get('/', (req, res) => {
 
 // POST Shorturl route
 app.post('/api/shorturl', validateUrl, function (req, res) {
-    // Get url from body
-    const url = req.body.url;
+    // Get url from body and remove last slash
+    const url = req.body.url.replace(/\/$/, '');
 
     // Create short URL (Pass the url and done function)
     createNewUrl(url, (err, doc) => {
