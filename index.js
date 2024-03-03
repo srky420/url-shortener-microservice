@@ -28,7 +28,7 @@ function validateUrl(req, res, next) {
         DNS.lookup(url.hostname, { all: true }, (err, adresses) => {
             if (err) {
                 console.error(err)
-                res.status(400).json({ error: 'Invalid URL' })
+                res.json({ error: 'Invalid URL' })
             }
             else {
                 console.log(adresses);
@@ -38,7 +38,7 @@ function validateUrl(req, res, next) {
     }
     catch (e) {
         console.error(e);
-        res.status(400).json({ error: 'Invalid URL' })
+        res.json({ error: 'Invalid URL' })
     }
 }
 
